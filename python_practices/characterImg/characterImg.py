@@ -5,7 +5,9 @@ from PIL import Image
 import argparse
 
 # 字符画中出现的字符
-character_List = list("@a #^$>%/&*+-!\'")
+#character_List = list("@a #^$>%/&*+-!\'")
+# 下面这个应该不错
+character_List = [chr(169),' ','-']
 #character_List = list("@ \'")
 
 # 计算使用character_List的哪个字符
