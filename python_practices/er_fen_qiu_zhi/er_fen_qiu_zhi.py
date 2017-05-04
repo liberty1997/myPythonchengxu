@@ -1,25 +1,32 @@
 #!/bin/python
 # -*- coding: UTF-8 -*-
 
-import math
+#import math
 
-def fangchengshi(x) :
-    F = math.exp(x) + 10 * x - 2
+def fangchengshi(x):
+    F = x**3 + 4*(x**2) - 10
+    #F = x**2 - 2*x + 1
+    #F = math.exp(x)+10*x-2
     return F
 
-def func(low,high) :
+def func(low,high,n):
+    n = n + 1
     l = fangchengshi(low)
     h = fangchengshi(high)
-    mm = (low + high ) / 2.0
+    mm = (low + high ) * 0.5
     m = fangchengshi(mm)
-    if (h-l) / 2.0 < (0.5 * 10**(-3)) :
-#    if round(mm,3) - mm != 0.0 :
-        print("Ans : %.3f" % mm)
+    #print("mm = %.8f" % mm)
+    # 符合精度,到达递归出口
+    if (m ==0 ) or (((h-l) * 0.5) < (0.5 * 10**(-5))):
+        print("Ans : ",mm)
+        print("次数: %d" % n)
         return
-    elif l * m < 0 :
-        func(low,mm)
-    elif m * h < 0 :
-        func(mm,high)
+    # 左半
+    if l * m < 0:
+        func(low,mm,n)
+    # 右半
+    elif m * h < 0:
+        func(mm,high,n)
 
-if __name__ == '__main__' :
-    func(0.0,1.0)
+if __name__ == '__main__':
+    func(1,2,0)
