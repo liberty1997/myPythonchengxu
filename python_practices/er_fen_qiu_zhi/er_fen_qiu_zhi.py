@@ -9,6 +9,7 @@ def fangchengshi(x):
 
 def func(low,high,n):
     n = n + 1
+    print("n=", n,end='\t')
     l = fangchengshi(low)
     h = fangchengshi(high)
     mm = (low + high ) / 2

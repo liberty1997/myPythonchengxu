@@ -11,11 +11,13 @@ def yidao(x):
 
 def Newton(x,n):
     n = n + 1
-    print("x1= " ,x)
+    print("n=", n,end=' --- ')
+    print("x(n)=", x,end=' --- ')
     x1 = x - fangcheng(x) / yidao(x)
+    print("x(n+1)=", x1)
     # 符合精度,到达递归出口
     if abs(x1 - x) < 0.5 * 10**(-5):
-        print("Ans: %.5f" % x)
+        print("Ans:", x)
         print("次数: %d" % n)
         return
     else:
