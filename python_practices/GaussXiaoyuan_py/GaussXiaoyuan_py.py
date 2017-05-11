@@ -11,6 +11,7 @@ for i in range(0,row):
 	line = f.readline().split()
 	line = list(map(float,line))
 	Matrix.append(line)
+f.close()
 
 for k in range(0,col-2):
 	for r in range(k+1,row):
