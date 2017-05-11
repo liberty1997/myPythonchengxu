@@ -1,23 +1,16 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 
-row,col = map(int,input("请输入行数和列数:(i.e. 3 4) ").split())
-
-print("请输入线性方程组的增广矩阵:")
-print("Example:")
-Example = [[2,8,2,14],[1,6,-1,13],[2,-1,2,5]]
-for r in Example:
-	for r1 in r:
-		print(r1,end=' ')
-	print('\n')
-
-Matrix = []
+f = open(r"Gauss_data.txt")
+s = f.readline().split()
+s = list(map(int,s))
+row,col = s[0],s[1]
 X = [0] * (col-1)
-for r in range(0,row):
-	temp = []
-	for c in range(0,col):
-		temp.append(float(input()))
-	Matrix.append(temp)
+Matrix = []
+for i in range(0,row):
+	line = f.readline().split()
+	line = list(map(float,line))
+	Matrix.append(line)
 
 for k in range(0,col-2):
 	for r in range(k+1,row):
