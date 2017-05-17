@@ -8,7 +8,7 @@ func2 = lambda a,b:(19-3*a-b)/10
 func3 = lambda a,b:(72-5*a+2*b)/20
 
 def Gauss_Seidel(x1,x2,x3,t):
-	print("x1= ",x1," x2= ",x2," x3= ",x3)
+	print("x1= {} x2= {} x3= {}".format(x1,x2,x3))
 	x11 = func1(x2,x3)
 	x22 = func2(x11,x3)
 	x33 = func3(x11,x22)
