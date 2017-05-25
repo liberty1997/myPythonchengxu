@@ -19,7 +19,7 @@ def Chashang(n):
 			if i != j:
 				t = t * (X[i]-X[j])
 		C = C + (Y[i] / t)
-	return C;
+	return C
 
 def func(x):
 	N = Y[0]
