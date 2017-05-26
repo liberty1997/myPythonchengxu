@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 # 高斯完全主元素消元法矩阵的创建
+import math
 f = open(r"Gauss_data.txt")
 s = f.readline().split()
 s = list(map(int,s))
@@ -24,8 +25,8 @@ for k in range(0,col-2):
 	ii,jj = k,k
 	temp = Matrix[k][k]
 	for i in range(k,row-1):
-		for j in range(k,col):
-			if temp < Matrix[i][j]:
+		for j in range(col-1):
+			if math.fabs(temp) < math.fabs(Matrix[i][j]):
 				temp = Matrix[i][j]
 				ii,jj = i,j
 	if ii!=k or jj!=k:
