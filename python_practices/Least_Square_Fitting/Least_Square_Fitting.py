@@ -15,6 +15,8 @@ for line in lines:
 	Y.append(float(line[1]))
 f.close()
 
+print('X: ',X)
+print('Y: ',Y)
 a = [0] * (N+1)
 Matrix = [[0 for c in range(N+2)] for r in range(N+1)]
 # 因为此处的Matrix为对称矩阵,所以先求上三角
@@ -57,8 +59,15 @@ for k in range(N-1,-1,-1):
 	for j in range(N,k,-1):
 		t += Matrix[k][j] * a[Matrix[N+1][j]]
 	a[Matrix[N+1][k]] = (Matrix[k][N+1]-t) / Matrix[k][k]
-# 结果
+# 拟合方程
 print('拟合方程:\ny=%.5f' % a[0],end='')
 for i in range(1,len(a)):
 	print('{:+.5f}x^{}'.format(a[i],i),end='')
-print()
+# 误差平方和
+I = 0
+for i in range(len(X)):
+	y = 0
+	for j in range(len(a)):
+		y += a[j] * X[i]**j
+	I += (y-Y[i])**2
+print('\n误差平方和: {}'.format(I))
