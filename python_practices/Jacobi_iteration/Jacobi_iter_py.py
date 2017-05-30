@@ -18,7 +18,7 @@ def Jacobi(x1,x2,x3,t):
 	if math.fabs(Fan2 - Fan1) < 0.5*(10**(-2)): # 范数控制精度
 		print("x1=",x11," x2=",x22," x3=",x33)
 		print("t= ",t)
-		print("x1= %.2f, x2= %.2f, x3= %.2f" % (x1,x2,x3))
+		print("x1= %.2f, x2= %.2f, x3= %.2f" % (x11,x22,x33))
 		return
 	else:
 		Jacobi(x11,x22,x33,t)
