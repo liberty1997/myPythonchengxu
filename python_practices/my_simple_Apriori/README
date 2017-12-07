@@ -1,5 +1,12 @@
+apriori_data.csv my_apriori.py my_apriori_02.py
+
 输入格式请按照数据文件那样
 第一列是编号， 第二列是转换后的项目编号
 列分隔符是空格
 第二列行内分隔符是英文逗号
 项目编号请转换成文件中所示 I1 I2 I3 I4 ......
+
+
+my_apriori_Movies.py
+Apriori_Movies_Transactions.csv.sample 小部分数据示例, 数字表示电影ID, 一行是一条事务, 若干部电影
+ratings.dat.sample 小部分数据示例, header意为 用户ID::电影ID::评分::时间戳
