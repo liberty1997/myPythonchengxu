@@ -4,30 +4,30 @@ import pandas as pd
 import copy
 
 
-def Load_data(fname):
+def Preprocess_data(fileIn, fileOut):
 	
 	'''
 	### 以下是用文件ratings.dat生成事务数据的代码, 保存在文件Apriori_Movies_Transactions.csv中
 
 	# 此数据集分隔符是'::', engine得是'python'
 	# "the 'c' engine does not support regex separators (separators > 1 char and different from '\s+' are interpreted as regex)"
-	df = pd.DataFrame(pd.read_csv(f, header = header, sep = sep, engine = 'python'))
+	'''
+
+	print('Preprocessing data......')
+	df = pd.DataFrame(pd.read_csv(fileIn, header = None, sep = '::', engine = 'python'))
 	# 默认评分大于3的为喜欢, 仅留下大于3的数据
 	data_like = df[df[2] > 3]
 	# 提取用户ID
 	uid = list(set(data_like[0]))
-	with open('Apriori_Movies_Transactions.csv', 'w') as fw:
-		for i in range(len(uid)):
-			# 一个用户 评论的 所有的电影 作为一个事务
-			transaction = list(set(data_like[data_like[0] == uid[i]][1]))
-			if len(transaction) > 0:
-				transaction.sort()
-				for j in range(len(transaction)):
-					transaction[j] = str(transaction[j])
-				fw.write(','.join(transaction) + '\n')
-			else:
-				print(uid[i])
-	'''
+	for i in range(len(uid)):
+		# 一个用户 评论的 所有的电影 作为一个事务
+		transaction = sorted(list(set(data_like[data_like[0] == uid[i]][1])))
+		t = pd.DataFrame({'T' : transaction})
+		t.T.to_csv(fileOut, header = None, index = False, mode = 'a')
+
+def Load_data(fname):
+	
+	print('Loading data......')
 	transactions = []
 	with open(fname) as f:
 		for i in f.readlines():
@@ -35,10 +35,14 @@ def Load_data(fname):
 			transactions.append(line)
 	return transactions
 
+
 def Find_frequent_1_itemsets(T, min_sup):
+	
 	'''
 	扫描事务数据, 找出满足min_sup的1-频繁项集
 	'''
+
+	print('Find_frequent_1_itemsets......')
 	L1 = []
 	C1 = {}
 	temp = []
@@ -62,11 +66,15 @@ def Find_frequent_1_itemsets(T, min_sup):
 	
 	return L1
 
+
 def Apriori_gen(K, Lk_1):
+	
 	'''
 	生成K-频繁项集的候选集
 	Lk_1 表示(K-1)-频繁项集
 	'''
+
+	print('Apriori_gen......')
 	# K-频繁项集候选集
 	Ck = []
 	# K_1频繁项集的个数
@@ -108,12 +116,16 @@ def Apriori_gen(K, Lk_1):
 	else:
 		return None
 
+
 def Confidence(A, B, T):
+	
 	'''
 	confidence(A->B) = P(B|A)
 	A B 是一维列表, 表示项集
 	T 表示事务
 	'''
+	
+	print('Calculating Confidence......')
 	support_count_A_B = 0
 	support_count_A = 0
 	for i in T:
@@ -128,21 +140,17 @@ def Confidence(A, B, T):
 	print('{}=>{}, confidence={}/{}={:.2f}%'.format(A, B, support_count_A_B, support_count_A, confid))
 	
 
-if __name__ == '__main__':
-	min_sup = 1300
-	#min_sup = 2
-	transactions = Load_data('Apriori_Movies_Transactions.csv')
-	#transactions = Load_data('apriori_data_2.csv')
+def Apriori_run(transactions, min_sup):
+	
+	print('Apriori_run......')
 	# 存储所有的K-频繁项集
 	Lk = []
 	# 计算1-频繁项集
-	print('1-频繁项集......')
 	L1 = Find_frequent_1_itemsets(transactions, min_sup)
 	Lk.append(L1)
 	# 计算2及以上频繁项集
 	K = 2
 	while True:
-		print('{}-频繁项集......'.format(K))
 		Ck = Apriori_gen(K, Lk[K - 2])
 		if Ck == None:
 			break
@@ -166,10 +174,25 @@ if __name__ == '__main__':
 			break
 		Lk.append(new_Lk)
 		K += 1
-	
 	# 输出频繁项集
 	for i in range(len(Lk)):
 		print('{}项集 共{}个: {}'.format(i + 1, len(Lk[i]), Lk[i]))
+
+
+if __name__ == '__main__':
+
+	min_sup = 1250
+	#dataFile = r'ratings.dat'
+	preprocessResult = r'Apriori_Movies_Transactions.csv'
+
+	# 第一次需要运行预处理数据的函数
+	#Preprocess_data(dataFile, preprocessResult)
+	
+	# 加载数据, 运行算法
+	transactions = Load_data(preprocessResult)
+	Apriori_run(transactions, min_sup)
 	
 	# 求置信度
-	Confidence(['1'], ['2', '5'], transactions)
+	A = ['1196', '1210']
+	B = ['260']
+	Confidence(A, B, transactions)
