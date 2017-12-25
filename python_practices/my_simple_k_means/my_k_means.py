@@ -1,6 +1,7 @@
 #!/bin/python3
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 def Load_data(fname):
 	with open(fname) as f:
@@ -53,6 +54,26 @@ def ReCalcMean(C):
 		XingXin.append(XX)
 	return XingXin
 
+def Fig(C, k, count):
+	'''
+	这里画散点图, 默认二维
+	三维以上, 后续再画
+	'''
+	#k = len(C) # 簇的个数
+	k = k
+	color = ['b', 'c', 'g', 'k', 'm', 'r', 'w', 'y']
+	
+	fig = plt.figure()
+	ax1 = fig.add_subplot(111)
+	
+	for i in range(k):
+		P = [ [] for _ in range(len(C[i][0]))]
+		for j in range(len(C[i])):
+			for p in range(len(C[i][0])):
+				P[p].append(C[i][j][p])
+		ax1.scatter(P[0], P[1], c = color[i])
+		plt.savefig('my_k_means_fig_' + str(count) + '.png')
+
 if __name__ == '__main__':
 	k = int(input('Please input an integer as k: '))
 	d = [ _ for _ in Load_data('data1.txt') ]
@@ -64,22 +85,15 @@ if __name__ == '__main__':
 	# 对初始簇进行第一次划分, 而形心使用的是随即形心, 故称'Round 0'
 	print('\nRound 0 XingXin:', XingXin)
 	C = Reallocate(XingXin, D)
-	count = 1
+	count = 0
+	Fig(C, k, count)
 	while True:
 		XingXin = ReCalcMean(C)
 		C_new = Reallocate(XingXin, C)
+		Fig(C, k, count + 1)
 		print('Round {} XingXin: {}'.format(count + 1, XingXin))
 		if C_new == C:
 			break
 		else:
 			C = C_new
 			count += 1
-
-
-
-
-
-
-
-
-
