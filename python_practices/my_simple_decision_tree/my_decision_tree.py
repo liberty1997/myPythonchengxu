@@ -6,40 +6,43 @@ import copy
 def Load_data(fname):
 	data = []
 	with open(fname) as f:
-		for line in f.readlines():
+		con = f.readlines()
+		for line in range(len(con)):
 			# 去掉每行前的编号, 仅限此数据lenses.data
-			data.append(line.replace('\n', '').split(' ')[1:])
+			data.append(con[line].replace('\n', '').split(' ')[1:])
 	return data
 
 def Load_test(fname):
 	test = []
 	with open(fname) as f:
-		for line in f.readlines():
-			test.append(line.replace('\n', '').split(' '))
+		con = f.readlines()
+		for line in range(len(con)):
+			test.append(con[line].replace('\n', '').split(' '))
 	return test
 
-def Generate_decision_tree(D, attribute_list, tree, k):
+def Generate_decision_tree(D, attribute_list, tree):
 	'''
 	mark == 0 返回的是类
 	mark == 1 返回的是属性
 	'''
-	print('D===', D)
-	print('path==', tree)
 	D_class = {}
+	print('tree==', tree)
+	print('D==', D)
+	# D中每条的类别计数 排序 找多数类
 	for i in range(len(D)):
 		if D[i][-1] not in D_class.keys():
 			D_class[D[i][-1]] = 0
 		D_class[D[i][-1]] += 1
+	D_class = sorted(D_class.items(), key = lambda a:a[1], reverse = True)
 	
 	# D中元组同属一类
 	if len(D_class) == 1:
-		class_same = list(D_class)[0]
+		class_same = D_class[0][0]
 		tree.append([class_same])
 		return 0, class_same
 	
 	# attribute_list为空时, 返回多数类
 	if len(attribute_list) == 0:
-		D_class = sorted(D_class.items(), key = lambda a:a[1], reverse = True)
 		class_most = D_class[0][0]
 		tree.append([class_most])
 		return 0, class_most
@@ -47,59 +50,38 @@ def Generate_decision_tree(D, attribute_list, tree, k):
 	# 属性度量选择, 信息增益
 	# 返回的N代表某个属性, 如 0 1 2 3 4 ... ...
 	N = Attribute_selection_method(D, attribute_list)
+	print('N==', N)
 	N_value = set()
 	for i in range(len(D)):
 		N_value.add(D[i][N])
 	N_value = list(N_value)
-	#print('N_value=', N_value)
+	attr_list = copy.deepcopy(attribute_list)
+	del attr_list[-1]
 	for nv in range(len(N_value)):
 		D_split = [] # 根据属性N的不同值, 把D划分
-		D1 = copy.deepcopy(D)
-		attr_list = copy.deepcopy(attribute_list)
-		for i in range(len(D1)):
-			if D1[i][N] == N_value[nv]:
-				D_split.append(D1[i])
-		# 从attribute_list和D中删除属性N
-		for i in range(len(attr_list)):
-			if attr_list[i] == N:
-				'''
-				if k != 0:
-					print('attr=', N + 1)
-				else:
-					print('attr=', N)
-				'''
-				for j in range(len(D1)):
-					del D1[j][i]
-				break
-		#print('attr_list BERORE', attr_list)
-		del attr_list[-1]
-		#print('attr_list AFTER', attr_list)
+		for i in range(len(D)):
+			if D[i][N] == N_value[nv]:
+				D_split.append(D[i])
 		if len(D_split) == 0:
-			class_empty = [0, D_class[0][0]]
+			class_empty = [D_class[0][0]]
 			tree.append(class_empty)
 			return 0, class_empty
 		else:
-			if k != 0:
-				class_ = [N + 1, N_value[nv]]
-				if class_ not in tree:
-					tree.append(class_)
-			else:
-				class_ = [N, N_value[nv]]
-				if class_ not in tree:
-					tree.append(class_)
-			Generate_decision_tree(D_split, attr_list, tree, k + 1)
+			class_ = [N, N_value[nv]]
+			tree.append(class_)
+			Generate_decision_tree(D_split, attr_list, tree)
 	return 1, N
 
 def Attribute_selection_method(D, attribute_list):
 	# 计算哪个属性的Info最小, 即为其信息增益Gain最大
 	N = 'unknown' # 返回的具有最大信息增益的属性
 	min_Info = 99999
-	print('attribute_list', attribute_list)
 	lenD = len(D)
-	'''
 	if len(attribute_list) == 1:
-		return attribute_list[0]
-	'''
+		# 属性列表仅剩一个时, 直接输出其划分属性, 就一个属性了, 没必要计算
+		# 经观察, 这里加1, 就不会出错了......
+		return attribute_list[0] + 1
+	
 	for i in range(len(attribute_list)):
 		Info_v = 0.0
 		attr_value = {} # 属性的值的次数
@@ -119,7 +101,6 @@ def Attribute_selection_method(D, attribute_list):
 				p = q[1] / k[1]
 				temp += ((-p) * math.log(p, 2))
 			Info_v += ((k[1] / lenD) * temp)
-		print('Info_v==', Info_v)
 		if Info_v < min_Info and Info_v != min_Info:
 			min_Info = Info_v
 			N = attribute_list[i]
@@ -128,42 +109,72 @@ def Attribute_selection_method(D, attribute_list):
 def Predict(test, tree):
 	for i in range(len(test)):
 		pair = []
+		attr = tree[0][0] # 每条测试集的属性的标记
+		attr_prev = -1 # 记录前一个结点的属性号
+		t = 0
 		for j in range(len(test[i])):
+			if j == attr:
+				t = 1
 			pair.append([j, test[i][j]])
-		print(pair)
-		start = tree[0][0]
-		for k in range(len(tree)):
-			if tree[k][0] == start and tree[k][1] == pair[start][1]:
-				start = k
+		# 根结点的属性不在test[i]的属性中, 直接输出unknown
+		if t == 0:
+			print('unknown 1')
+			continue
+		mark = 1
+		tree_pos = 0 # tree上的标记
+		# 按树的路径, 找出符合的最终类别
+		while mark:
+			# 找到了类别
+			if len(tree[tree_pos]) == 1:
+				print(tree[tree_pos][0])
+				mark = 0
 				break
-		while True:
-			print('tree[start][0]=', tree[start][0])
-			print('start=', start)
-			if pair[tree[start][0]][1] == tree[start][1]:
-				if len(tree[start + 1]) == 1:
-					print(tree[start + 1][0])
-					break
-				start += 1
+
+			# 如果匹配当前结点, 则继续按深度找下去
+			# 如果匹配不上, 则需要搜索其它分枝
+			if tree[tree_pos] == pair[attr]:
+				attr_prev = copy.deepcopy(attr)
+				tree_pos += 1
+				if len(tree[tree_pos]) > 1:
+					#attr_prev = copy.deepcopy(attr)
+					attr = tree[tree_pos][0]
 			else:
-				start += 2
-
-		
-
+				# 先确定一下搜索范围
+				find = -1
+				for j in range(tree_pos + 1, len(tree)):
+					#attr_prev = copy.deepcopy(attr)
+					if len(tree[j]) > 1:
+						#print('j + 1==', j + 1, 'attr_prev', attr_prev)
+						#print('tree['+str(j)+'][0]', tree[j][0], ' attr_prev', attr_prev)
+						if tree[j][0] == attr_prev:
+							find = j + 1
+							break
+				if find == -1:
+					find = len(tree)
+				mm = 0
+				#print('find ', find)
+				for j in range(tree_pos + 1, find):
+					if len(tree[j]) > 1:
+						if tree[j] == pair[attr]:
+							tree_pos = j
+							#print('tree_pos==', tree_pos)
+							#tree_pos = j + 1
+							#attr_prev = copy.deepcopy(attr)
+							#attr = tree[tree_pos][0]
+							mm = 1
+							break
+				if mm == 0:
+					print('unknown 2')
+					mark = 0
 
 if __name__ == '__main__':
 	D = Load_data('lenses.data.train')
 	T = Load_test('my_decision_tree_test.csv')
 	#D = Load_data('AllElectronics2.csv')
 	#T = Load_test('AllElectronics_test.csv')
-	#print('D===', D)
-	#print('T===', T)
 	tree = []
-	# k用来标记深度. 每深入一层, 每依据一个属性划分一次,
-	# attribute_list就要删去那个属性, 所以除了第一次, 其后每次输出N时都应该加1
-	# k的作用: k是根据个人需要添加的!
-	k = 0
 	attribute_list = [ _ for _ in range(len(D[0]) - 1) ]
-	Generate_decision_tree(D, attribute_list, tree, k)
-	print(tree)
+	Generate_decision_tree(D, attribute_list, tree)
+	print('my Decision Tree:\n', tree)
+	print('Predict:')
 	Predict(T, tree)
-
